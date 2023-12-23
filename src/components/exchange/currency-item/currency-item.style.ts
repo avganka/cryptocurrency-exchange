@@ -15,10 +15,10 @@ export const StyledListItem = styled.li`
   }
 `;
 
-export const CurrencyCode = styled.li`
+export const CurrencyCode = styled.span`
   color: ${(props) => props.theme.colors.text};
 `;
 
-export const CurrencyName = styled.li`
+export const CurrencyName = styled.span`
   color: ${(props) => props.theme.colors.textLight};
 `;

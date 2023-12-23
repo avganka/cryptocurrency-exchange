@@ -1,8 +1,8 @@
-import React from 'react';
+import { ThemeProvider } from 'styled-components';
+
+import { GlobalStyle, theme } from './global';
 
 import Exchange from '@/pages/exchange';
-import { ThemeProvider } from 'styled-components';
-import { GlobalStyle, theme } from './global';
 
 function App() {
   return (

@@ -6,7 +6,7 @@ export const StyledList = styled.ul<{ $open?: boolean }>`
   left: 0;
 
   width: 100%;
-  max-height: 225px;
+  max-height: 227px;
 
   overflow-y: auto;
 

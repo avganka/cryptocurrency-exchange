@@ -2,7 +2,7 @@ import { StyledList } from './currency-list.style';
 
 import { Currency } from '@/core/types/currency';
 
-import CurrencyItem from '@/components/currency-item/currency-item';
+import CurrencyItem from '@/components/exchange/currency-item/currency-item';
 
 interface CurrencyListProps {
   open?: boolean;

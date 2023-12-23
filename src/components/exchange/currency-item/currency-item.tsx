@@ -7,7 +7,7 @@ interface CurrencyProps {
 
 const CurrencyItem = ({ currency }: CurrencyProps) => {
   return (
-    <StyledListItem>
+    <StyledListItem tabIndex={0}>
       <img src={currency.image} alt={currency.ticker} aria-hidden={true} />
       <CurrencyCode>{currency.ticker.toUpperCase()}</CurrencyCode>
       <CurrencyName>{currency.name}</CurrencyName>
