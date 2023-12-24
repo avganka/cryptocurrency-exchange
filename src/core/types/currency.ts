@@ -42,3 +42,7 @@ export interface EstimatedExchangeAmount {
 }
 
 export type Flow = 'standard' | 'fixed-rate';
+
+export type ExchangeType = DirectType | ReverseType;
+export type DirectType = 'direct';
+export type ReverseType = 'reverse';

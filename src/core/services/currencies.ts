@@ -1,5 +1,13 @@
 import { APIService } from '.';
-import { Currency, EstimatedExchangeAmount, Flow, MinimalExchangeAmount } from '../types/currency';
+import {
+  Currency,
+  DirectType,
+  EstimatedExchangeAmount,
+  ExchangeType,
+  Flow,
+  MinimalExchangeAmount,
+  ReverseType
+} from '../types/currency';
 
 interface CurrencyParams {
   active?: string;
@@ -16,16 +24,27 @@ interface MinimalExchangeAmountParams {
   flow?: Flow;
 }
 
-interface EstimatedExchangeAmountParams {
+interface CommonExchangeAmountParams {
   fromCurrency: string;
   toCurrency: string;
-  fromAmount: string;
-  toAmount: string;
   fromNetwork?: string;
   toNetwork?: string;
   flow?: Flow;
   useRateId?: string;
 }
+interface DirectExchangeAmountParams extends CommonExchangeAmountParams {
+  fromAmount: string;
+  toAmount?: string;
+  type: DirectType;
+}
+
+interface ReverseExchangeAmountParams extends CommonExchangeAmountParams {
+  fromAmount?: string;
+  toAmount: string;
+  type: ReverseType;
+}
+
+type EstimatedExchangeAmountParams = DirectExchangeAmountParams | ReverseExchangeAmountParams;
 
 export class CurrencyService extends APIService {
   public async fetchCurrenciesList(params?: CurrencyParams): Promise<{ currencies: Currency[] }> {
@@ -61,6 +80,7 @@ export class CurrencyService extends APIService {
     toCurrency,
     fromAmount,
     toAmount,
+    type = 'direct',
     ...params
   }: EstimatedExchangeAmountParams): Promise<{ estimatedExchangeAmount: EstimatedExchangeAmount }> {
     const response = await this.execute('v2/exchange/estimated-amount', 'GET', {
@@ -69,6 +89,7 @@ export class CurrencyService extends APIService {
         toCurrency,
         fromAmount,
         toAmount,
+        type,
         ...params
       }
     });

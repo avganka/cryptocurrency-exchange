@@ -1,98 +1,85 @@
-import { Currency } from '@/core/types/currency';
-import { updateUrlParams } from '@/core/utils/update-url-params';
+import { Currency, ExchangeType } from '@/core/types/currency';
 
 export interface CurrencyContextType {
   currencies: Currency[];
   errorText: string | null;
-  inputCurrency: {
+  exchangeType: ExchangeType;
+  input: {
     currency: Currency | null;
     amount: number;
     minAmount: number;
+    isLoading: boolean;
   };
-  outputCurrency: {
+  output: {
     currency: Currency | null;
     amount: number;
+    isLoading: boolean;
   };
-  estimateRate: number;
 }
 
 export const initialState: CurrencyContextType = {
   currencies: [],
   errorText: null,
-  inputCurrency: {
+  exchangeType: 'direct',
+  input: {
     currency: null,
+    isLoading: false,
     amount: 0,
     minAmount: 0
   },
-  outputCurrency: {
+  output: {
     currency: null,
-    amount: 0
-  },
-  estimateRate: 0
+    amount: 0,
+    isLoading: false
+  }
 };
+
+export type ControlType = 'input' | 'output';
 
 export type Action =
   | { type: 'SET_CURRENCIES'; payload: Currency[] }
-  | { type: 'SET_INPUT_CURRENCY'; payload: Currency }
-  | { type: 'SET_OUTPUT_CURRENCY'; payload: Currency }
-  | { type: 'SET_INPUT_AMOUNT'; payload: number }
-  | { type: 'SET_OUTPUT_AMOUNT'; payload: number }
+  | { type: 'SET_ACTIVE_CURRENCY'; payload: { currency: Currency; type: ControlType } }
+  | { type: 'SET_AMOUNT'; payload: { amount: number; type: ControlType } }
+  | { type: 'SET_TYPE'; payload: ExchangeType }
   | { type: 'SET_MIN_AMOUNT'; payload: number }
-  | { type: 'SET_ESTIMATE_RATE'; payload: number }
   | { type: 'SET_ERROR'; payload: string };
 
-export const currencyReducer = (state: CurrencyContextType, action: Action): CurrencyContextType => {
-  switch (action.type) {
+export const currencyReducer = (state: CurrencyContextType, { type, payload }: Action): CurrencyContextType => {
+  switch (type) {
     case 'SET_CURRENCIES':
-      return { ...state, currencies: action.payload };
-    case 'SET_INPUT_CURRENCY':
-      updateUrlParams('fromCurrency', action.payload.legacyTicker);
+      return { ...state, currencies: payload };
+    case 'SET_ACTIVE_CURRENCY':
       return {
         ...state,
-        inputCurrency: {
-          ...state.inputCurrency,
-          currency: action.payload
+        [payload.type]: {
+          ...state[payload.type],
+          currency: payload.currency
         }
       };
-    case 'SET_OUTPUT_CURRENCY':
-      updateUrlParams('toCurrency', action.payload.legacyTicker);
+    case 'SET_AMOUNT':
       return {
         ...state,
-        outputCurrency: {
-          ...state.outputCurrency,
-          currency: action.payload
+        [payload.type]: {
+          ...state[payload.type],
+          amount: payload.amount
         }
       };
-    case 'SET_INPUT_AMOUNT':
-      return {
-        ...state,
-        inputCurrency: {
-          ...state.inputCurrency,
-          amount: action.payload
-        }
-      };
-
     case 'SET_MIN_AMOUNT':
       return {
         ...state,
-        inputCurrency: {
-          ...state.inputCurrency,
-          minAmount: action.payload
+        input: {
+          ...state.input,
+          minAmount: payload
         }
       };
-
-    case 'SET_OUTPUT_AMOUNT':
+    case 'SET_TYPE':
       return {
         ...state,
-        outputCurrency: {
-          ...state.outputCurrency,
-          amount: action.payload
-        }
+        exchangeType: payload
       };
-    case 'SET_ESTIMATE_RATE':
-      return { ...state, estimateRate: action.payload };
+
     case 'SET_ERROR':
-      return { ...state, errorText: action.payload };
+      return { ...state, errorText: payload };
     default:
       return state;
   }

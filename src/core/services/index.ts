@@ -17,7 +17,7 @@ export class APIService<
 
   constructor() {
     this.host = 'api.changenow.io';
-    this.apiKey = import.meta.env.API_KEY || '';
+    this.apiKey = import.meta.env.VITE_API_TOKEN || '';
   }
 
   protected constructURL(path: string): string {
@@ -35,7 +35,8 @@ export class APIService<
   ): Promise<AxiosResponse> => {
     const headers: {
       'Content-Type': string;
-    } = { 'Content-Type': 'application/json', ...options.customHeaders };
+      'x-changenow-api-key': string;
+    } = { 'Content-Type': 'application/json', 'x-changenow-api-key': this.apiKey, ...options.customHeaders };
 
     const config: AxiosRequestConfig = {
       headers: headers
