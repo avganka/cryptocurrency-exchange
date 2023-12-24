@@ -8,7 +8,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Exchange />
-      <GlobalStyle />
+      <GlobalStyle theme={theme} />
     </ThemeProvider>
   );
 }

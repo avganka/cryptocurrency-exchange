@@ -1,17 +1,17 @@
 import { StyledWrapper } from './exchange-widget.style';
 import ExchangeControl from '@/components/exchange/exchange-control/exchange-control';
-import { CurrencyContext } from '@/core/context/currency-context';
+import { useCurrencyContext } from '@/store/currency/currency-context';
+
 import ChangeSymbol from '@components/change-symbol/change-symbol';
-import { useContext } from 'react';
 
 const ExchangeWidget = () => {
-  const { currencies, inputCurrency, outputCurrency } = useContext(CurrencyContext);
+  const { store } = useCurrencyContext();
 
   return (
     <StyledWrapper>
-      <ExchangeControl currencies={currencies} selectedCurrency={inputCurrency} />
+      <ExchangeControl currencies={store.currencies} selectedCurrency={store.inputCurrency.currency} />
       <ChangeSymbol />
-      <ExchangeControl currencies={currencies} selectedCurrency={outputCurrency} />
+      <ExchangeControl currencies={store.currencies} selectedCurrency={store.outputCurrency.currency} />
     </StyledWrapper>
   );
 };

@@ -10,7 +10,7 @@ import { useSwitcherControl } from '@/hooks/use-switcher-control';
 
 interface ExchangeControlProps {
   currencies: Currency[];
-  selectedCurrency: Currency;
+  selectedCurrency: Currency | null;
 }
 
 const ExchangeControl = ({ currencies, selectedCurrency }: ExchangeControlProps) => {

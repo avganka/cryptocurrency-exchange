@@ -22,11 +22,13 @@ const CurrencySwitcher = (props: CurrencySwitcherProps) => {
     setValue('');
   };
 
-  const filteredCurrencies = currencies.filter(
-    (currency) =>
-      currency.ticker.toLowerCase().includes(value.toLowerCase()) ||
-      currency.name.toLowerCase().includes(value.toLowerCase())
-  );
+  const filteredCurrencies = currencies
+    .filter(
+      (currency) =>
+        currency.ticker.toLowerCase().includes(value.toLowerCase()) ||
+        currency.name.toLowerCase().includes(value.toLowerCase())
+    )
+    .slice(0, 100);
 
   return (
     <>
