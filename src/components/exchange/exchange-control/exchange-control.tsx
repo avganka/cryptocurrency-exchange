@@ -12,6 +12,7 @@ import {
 } from './exchange-control.style';
 
 import { useCurrencyContext } from '@/store/currency/currency-context';
+import { filterNumbers } from '@/core/utils/filter-numbers';
 import { SWITCH_CURRENCY_INPUT_TEXT } from '@/core/constants/exchange';
 import { ControlTypes, Currency } from '@/core/types/currency';
 import { useSwitcherControl } from '@/hooks/use-switcher-control';
@@ -78,8 +79,8 @@ const ExchangeControl = ({ type }: ExchangeControlProps) => {
       {!showCurrenciesList ? (
         <>
           <StyledValueInput
-            type='number'
-            value={isLoading ? '' : currencyValue}
+            type='text'
+            value={isLoading ? '' : filterNumbers(currencyValue)}
             onChange={changeValueHandler}
             disabled={type === ControlTypes.OUTPUT}
           />
