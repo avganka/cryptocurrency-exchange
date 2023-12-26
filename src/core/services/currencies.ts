@@ -1,12 +1,5 @@
 import { APIService } from '.';
-import {
-  Currency,
-  DirectType,
-  EstimatedExchangeAmount,
-  Flow,
-  MinimalExchangeAmount,
-  ReverseType
-} from '../types/currency';
+import { Currency, EstimatedExchangeAmount, Flow, MinimalExchangeAmount } from '../types/currency';
 
 interface CurrencyParams {
   active?: string;
@@ -34,13 +27,13 @@ interface CommonExchangeAmountParams {
 interface DirectExchangeAmountParams extends CommonExchangeAmountParams {
   fromAmount: string;
   toAmount?: string;
-  type: DirectType;
+  type: 'direct';
 }
 
 interface ReverseExchangeAmountParams extends CommonExchangeAmountParams {
   fromAmount?: string;
   toAmount: string;
-  type: ReverseType;
+  type: 'reverse';
 }
 
 type EstimatedExchangeAmountParams = DirectExchangeAmountParams | ReverseExchangeAmountParams;
