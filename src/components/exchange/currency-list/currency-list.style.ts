@@ -14,4 +14,6 @@ export const StyledList = styled.ul<{ $open?: boolean }>`
   background-color: ${(props) => props.theme.colors.gray};
   border: 1px solid ${(props) => (props.$open ? props.theme.colors.borderDark : props.theme.colors.darkGray)};
   border-top-color: transparent;
+
+  z-index: 10;
 `;
