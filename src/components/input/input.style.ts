@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const Input = styled.input`
+export const Input = styled.input`
   width: 100%;
   padding: 15px;
 
@@ -15,5 +15,3 @@ const Input = styled.input`
 
   outline-color: ${(props) => props.theme.colors.accent};
 `;
-
-export default Input;

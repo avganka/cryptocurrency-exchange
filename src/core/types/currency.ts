@@ -41,8 +41,15 @@ export interface EstimatedExchangeAmount {
   toAmount: number;
 }
 
-export type Flow = 'standard' | 'fixed-rate';
+export interface CurrenciesUrlParams {
+  fromCurrency: string | null;
+  toCurrency: string | null;
+  fromAmount: string | null;
+}
 
-export type ExchangeType = DirectType | ReverseType;
-export type DirectType = 'direct';
-export type ReverseType = 'reverse';
+export enum ControlTypes {
+  INPUT = 'input',
+  OUTPUT = 'output'
+}
+
+export type Flow = 'standard' | 'fixed-rate';

@@ -3,7 +3,6 @@ import {
   Currency,
   DirectType,
   EstimatedExchangeAmount,
-  ExchangeType,
   Flow,
   MinimalExchangeAmount,
   ReverseType

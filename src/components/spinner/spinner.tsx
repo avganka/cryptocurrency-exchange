@@ -1,3 +1,4 @@
+import { theme } from '@/global';
 import { StyledSpinner, StyledSpinnerCircle, StyledSpinnerWrapper } from './spinner.style';
 
 interface SpinnerProps {
@@ -6,7 +7,7 @@ interface SpinnerProps {
   size?: number;
 }
 
-const Spinner = ({ color, size = 24 }: SpinnerProps) => {
+const Spinner = ({ color = theme.colors.accent, size = 24 }: SpinnerProps) => {
   return (
     <StyledSpinnerWrapper>
       <StyledSpinner width={size} height={size}>

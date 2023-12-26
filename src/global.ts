@@ -31,7 +31,9 @@ export const theme = {
     darkGray: '#E3EBEF',
 
     borderDark: '#C1D9E5',
-    inputHover: '#EAF1F7'
+    inputHover: '#EAF1F7',
+
+    error: '#E03F3F'
   },
   borderRadius: '5px',
   fontFamily: 'Roboto, sans-serif'

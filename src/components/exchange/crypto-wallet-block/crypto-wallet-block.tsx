@@ -1,12 +1,15 @@
 import { FormEvent, useState } from 'react';
-import { StyledLabel, StyledWrapper } from './crypto-wallet-block.style';
+import { ButtonWrapper, ErrorText, StyledLabel, StyledWrapper } from './crypto-wallet-block.style';
 
+import { useCurrencyContext } from '@/store/currency/currency-context';
 import { WALLET_ADDRESS_NAME, WALLET_EXCHANGE_BUTTON_TEXT, WALLET_LABEL_TEXT } from '@/core/constants/crypto-wallet';
 
 import Button from '@/components/button/button';
-import Input from '@components/input/input';
+import { Input } from '@/components/input/input.style';
 
 const CryptoWalletBlock = () => {
+  const { store } = useCurrencyContext();
+
   const [isLoading, setLoading] = useState(false);
   const onClick = () => {
     setLoading((prev) => !prev);
@@ -22,7 +25,16 @@ const CryptoWalletBlock = () => {
       <StyledLabel htmlFor={WALLET_ADDRESS_NAME}>{WALLET_LABEL_TEXT}</StyledLabel>
       <StyledWrapper>
         <Input type='text' id={WALLET_ADDRESS_NAME} />
-        <Button type='submit' text={WALLET_EXCHANGE_BUTTON_TEXT} onClick={onClick} isLoading={isLoading} />
+        <ButtonWrapper>
+          <Button
+            type='submit'
+            text={WALLET_EXCHANGE_BUTTON_TEXT}
+            onClick={onClick}
+            isLoading={isLoading}
+            disabled={!!store.errorText}
+          />
+          {store.errorText && <ErrorText>{store.errorText}f</ErrorText>}
+        </ButtonWrapper>
       </StyledWrapper>
     </form>
   );

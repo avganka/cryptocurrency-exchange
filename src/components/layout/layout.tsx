@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
-import Header from '@components/header/header';
-
 import styled from 'styled-components';
+
+import Header from '@components/header/header';
 
 const StyledLayout = styled.div`
   max-width: 980px;

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const StyledButton = styled.button`
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,6 +30,8 @@ export const StyledButton = styled.button`
   }
 
   &:disabled {
+    cursor: not-allowed;
+    pointer-events: none;
     background-color: ${(props) => props.theme.colors.accentDisabled};
   }
 `;

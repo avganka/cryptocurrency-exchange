@@ -1,69 +1,94 @@
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import debounce from 'lodash/debounce';
 
-import { StyledWrapper } from './exchange-control.style';
+import {
+  ErrorText,
+  SpinnerWrapper,
+  StyledCurrencyButton,
+  StyledCurrencyCloseButton,
+  StyledCurrencySearch,
+  StyledValueInput,
+  StyledWrapper
+} from './exchange-control.style';
 
-import { Currency } from '@/core/types/currency';
-import { useSwitcherControl } from '@/hooks/use-switcher-control';
-import { StyledCurrencyButton, StyledValueInput } from '../currency-value-input/currency-value-input.style';
-import { StyledCurrencyCloseButton, StyledCurrencySearch } from '../currency-switcher/currency-switcher.style';
-import CurrencyList from '../currency-list/currency-list';
-import { SWITCH_CURRENCY_INPUT_TEXT } from '@/core/constants/exchange';
 import { useCurrencyContext } from '@/store/currency/currency-context';
-import { deleteUrlParam, updateUrlParams } from '@/core/utils/update-url-params';
+import { SWITCH_CURRENCY_INPUT_TEXT } from '@/core/constants/exchange';
+import { ControlTypes, Currency } from '@/core/types/currency';
+import { useSwitcherControl } from '@/hooks/use-switcher-control';
+
+import CurrencyList from '@components/exchange/currency-list/currency-list';
+import Spinner from '@/components/spinner/spinner';
 
 interface ExchangeControlProps {
-  type: 'input' | 'output';
+  type: ControlTypes;
 }
 
 const ExchangeControl = ({ type }: ExchangeControlProps) => {
   const { store, dispatch } = useCurrencyContext();
   const { currencies } = store;
-  const { currency: selectedCurrency, amount } = store[type];
+  const { currency: selectedCurrency, amount, isLoading, errorText } = store[type];
 
+  const [currencyValue, setCurrencyValue] = useState('');
   const [currencyName, setCurrencyName] = useState('');
   const [showCurrenciesList, setShowCurrenciesList] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const onClick = () => {
+  const openListHandler = () => {
     setShowCurrenciesList(true);
   };
 
-  const onClose = () => {
+  const closeListHandler = () => {
     setShowCurrenciesList(false);
     setCurrencyName('');
   };
 
-  const setActiveCurrency = (currency: Currency) => {
+  const changeActiveCurrencyHandler = (currency: Currency) => {
     dispatch({ type: 'SET_ACTIVE_CURRENCY', payload: { currency, type } });
-    dispatch({ type: 'SET_TYPE', payload: 'direct' });
-    updateUrlParams(type === 'input' ? 'fromCurrency' : 'toCurrency', currency.legacyTicker);
-    onClose();
+    closeListHandler();
   };
+
+  const debouncedDispatch = useCallback(
+    debounce((value) => {
+      dispatch({ type: 'SET_AMOUNT', payload: { amount: value, type } });
+    }, 500),
+    [dispatch, type]
+  );
 
   const changeValueHandler = (evt: ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: 'SET_AMOUNT', payload: { amount: Number(evt.target.value), type } });
-    dispatch({ type: 'SET_TYPE', payload: type === 'input' ? 'direct' : 'reverse' });
-    updateUrlParams(type === 'input' ? 'amount' : 'toAmount', evt.target.value);
-    deleteUrlParam(type === 'input' ? 'toAmount' : 'amount');
+    setCurrencyValue(evt.target.value);
+    debouncedDispatch(evt.target.value);
   };
 
-  useSwitcherControl(rootRef, buttonRef, showCurrenciesList, onClose, onClick);
+  useEffect(() => {
+    setCurrencyValue(amount);
+  }, [amount]);
 
-  const filteredCurrencies = currencies
-    .filter(
-      (currency) =>
-        currency.ticker.toLowerCase().includes(currencyName.toLowerCase()) ||
-        currency.name.toLowerCase().includes(currencyName.toLowerCase())
-    )
-    .slice(0, 100);
+  useSwitcherControl(rootRef, buttonRef, showCurrenciesList, closeListHandler, openListHandler);
+
+  const filteredCurrencies = currencies.filter(
+    (currency) =>
+      currency.ticker.toLowerCase().includes(currencyName.toLowerCase()) ||
+      currency.name.toLowerCase().includes(currencyName.toLowerCase())
+  );
 
   return (
     <StyledWrapper ref={rootRef}>
       {!showCurrenciesList ? (
         <>
-          <StyledValueInput type='number' value={amount.toString()} onChange={changeValueHandler} />
+          <StyledValueInput
+            type='number'
+            value={isLoading ? '' : currencyValue}
+            onChange={changeValueHandler}
+            disabled={type === ControlTypes.OUTPUT}
+          />
+          {isLoading && (
+            <SpinnerWrapper>
+              <Spinner size={20} />
+            </SpinnerWrapper>
+          )}
+          {errorText && <ErrorText>{errorText}</ErrorText>}
           {selectedCurrency && (
             <StyledCurrencyButton ref={buttonRef}>
               <img
@@ -87,8 +112,12 @@ const ExchangeControl = ({ type }: ExchangeControlProps) => {
             value={currencyName}
             onChange={(evt) => setCurrencyName(evt.target.value)}
           />
-          <StyledCurrencyCloseButton onClick={onClose} />
-          <CurrencyList currencies={filteredCurrencies} open={showCurrenciesList} onClick={setActiveCurrency} />
+          <StyledCurrencyCloseButton onClick={closeListHandler} />
+          <CurrencyList
+            currencies={filteredCurrencies}
+            open={showCurrenciesList}
+            onClick={changeActiveCurrencyHandler}
+          />
         </>
       )}
     </StyledWrapper>
