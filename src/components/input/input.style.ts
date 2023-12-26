@@ -13,5 +13,5 @@ export const Input = styled.input`
   font-size: inherit;
   font-weight: 400;
 
-  outline-color: ${(props) => props.theme.colors.accent};
+  outline: none;
 `;
