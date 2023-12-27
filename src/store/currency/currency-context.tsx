@@ -5,7 +5,7 @@ import { Action, CurrencyContextType, currencyReducer, initialState } from './re
 
 import { DEFAULT_ERROR_TEXT, PAIR_INACTIVE_ERROR_TEXT, SMALL_DEPOSIT_ERROR_TEXT } from '@/core/constants/errors';
 import { CurrencyService } from '@/core/services/currencies';
-import { ControlTypes } from '@/core/types/currency';
+import { ControlTypes, Currency } from '@/core/types/currency';
 import { getSearchParamsFromUrl } from '@/core/utils/get-search-params-from-url';
 import { Errors } from '@/core/types/errors';
 import { useCurrencyControlSearchParams } from '@/hooks/use-currency-control-search-params';
@@ -42,27 +42,29 @@ export const CurrencyProvider = ({ children }: CurrencyContextProps) => {
     try {
       const { currencies: currenciesList } = await currencyService.current.fetchCurrenciesList();
       dispatch({ type: 'SET_CURRENCIES', payload: currenciesList });
-
-      const searchParams = getSearchParamsFromUrl();
-
-      const fromCurrency = searchParams.fromCurrency
-        ? currenciesList.find((cur) => cur.legacyTicker === searchParams.fromCurrency) || currenciesList[0]
-        : currenciesList[0];
-
-      dispatch({ type: 'SET_ACTIVE_CURRENCY', payload: { currency: fromCurrency, type: ControlTypes.INPUT } });
-
-      const toCurrency = searchParams.toCurrency
-        ? currenciesList.find((cur) => cur.legacyTicker === searchParams.toCurrency) || currenciesList[1]
-        : currenciesList[1];
-
-      dispatch({ type: 'SET_ACTIVE_CURRENCY', payload: { currency: toCurrency, type: ControlTypes.OUTPUT } });
+      setActiveCurrencies(currenciesList);
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: DEFAULT_ERROR_TEXT });
     }
   };
 
+  const setActiveCurrencies = (currenciesList: Currency[]) => {
+    const searchParams = getSearchParamsFromUrl();
+    const fromCurrency = searchParams.fromCurrency
+      ? currenciesList.find((cur) => cur.legacyTicker === searchParams.fromCurrency) || currenciesList[0]
+      : currenciesList[0];
+
+    dispatch({ type: 'SET_ACTIVE_CURRENCY', payload: { currency: fromCurrency, type: ControlTypes.INPUT } });
+
+    const toCurrency = searchParams.toCurrency
+      ? currenciesList.find((cur) => cur.legacyTicker === searchParams.toCurrency) || currenciesList[1]
+      : currenciesList[1];
+
+    dispatch({ type: 'SET_ACTIVE_CURRENCY', payload: { currency: toCurrency, type: ControlTypes.OUTPUT } });
+  };
+
+  // eslint-disable-next-line consistent-return
   const fetchMinimalExchangeAmount = async (state: CurrencyContextType) => {
-    dispatch({ type: 'CLEAR_ERRORS' });
     const searchParams = getSearchParamsFromUrl();
 
     try {
@@ -81,13 +83,13 @@ export const CurrencyProvider = ({ children }: CurrencyContextProps) => {
         type: 'SET_AMOUNT',
         payload: { amount: fromAmount, type: ControlTypes.INPUT }
       });
+      return minimalExchangeAmount.minAmount.toString();
     } catch (error) {
       errorHandler(state, error);
     }
   };
 
   const fetchEstimatedExchangeAmount = async (state: CurrencyContextType) => {
-    dispatch({ type: 'CLEAR_ERRORS' });
     dispatch({
       type: 'SET_LOADING',
       payload: { loading: true, type: ControlTypes.OUTPUT }
@@ -106,17 +108,13 @@ export const CurrencyProvider = ({ children }: CurrencyContextProps) => {
         type: 'SET_AMOUNT',
         payload: { amount: estimatedExchangeAmount.toAmount.toString(), type: ControlTypes.OUTPUT }
       });
-      dispatch({
-        type: 'SET_LOADING',
-        payload: { loading: false, type: ControlTypes.OUTPUT }
-      });
     } catch (error) {
       errorHandler(state, error);
-      dispatch({
-        type: 'SET_LOADING',
-        payload: { loading: false, type: ControlTypes.OUTPUT }
-      });
     }
+    dispatch({
+      type: 'SET_LOADING',
+      payload: { loading: false, type: ControlTypes.OUTPUT }
+    });
   };
 
   const errorHandler = (state: CurrencyContextType, error: unknown) => {
@@ -151,29 +149,35 @@ export const CurrencyProvider = ({ children }: CurrencyContextProps) => {
   }, []);
 
   useEffect(() => {
-    if (input.currency && output.currency) {
-      fetchMinimalExchangeAmount(store);
-    }
-  }, [input.currency]);
+    const updateEstimatedExchangeAmount = async () => {
+      dispatch({ type: 'CLEAR_ERRORS' });
+      if (input.currency && output.currency) {
+        const minAmount = (await fetchMinimalExchangeAmount(store)) || input.minAmount;
 
-  useEffect(() => {
-    if (input.amount < input.minAmount) {
-      dispatch({
-        type: 'SET_CURRENCY_ERROR',
-        payload: {
-          error: SMALL_DEPOSIT_ERROR_TEXT(store.input.currency?.ticker || '', store.input.minAmount),
-          type: ControlTypes.INPUT
+        if (Number(input.amount) < Number(minAmount)) {
+          dispatch({
+            type: 'SET_CURRENCY_ERROR',
+            payload: {
+              error: SMALL_DEPOSIT_ERROR_TEXT(store.input.currency?.ticker || '', minAmount),
+              type: ControlTypes.INPUT
+            }
+          });
+          dispatch({
+            type: 'SET_AMOUNT',
+            payload: { amount: '-', type: ControlTypes.OUTPUT }
+          });
+        } else {
+          await fetchEstimatedExchangeAmount(store);
         }
-      });
-      dispatch({
-        type: 'SET_AMOUNT',
-        payload: { amount: '-', type: ControlTypes.OUTPUT }
-      });
-      return;
-    }
-    if (input.amount && input.currency && output.currency) {
-      fetchEstimatedExchangeAmount(store);
-    }
+
+        dispatch({
+          type: 'SET_LOADING',
+          payload: { loading: false, type: ControlTypes.OUTPUT }
+        });
+      }
+    };
+
+    updateEstimatedExchangeAmount();
   }, [input.amount, input.currency, output.currency]);
 
   return (

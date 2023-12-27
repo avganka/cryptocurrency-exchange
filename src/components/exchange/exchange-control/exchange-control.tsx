@@ -59,6 +59,10 @@ const ExchangeControl = ({ type }: ExchangeControlProps) => {
 
   const changeValueHandler = (evt: ChangeEvent<HTMLInputElement>) => {
     setCurrencyValue(evt.target.value);
+    dispatch({
+      type: 'SET_LOADING',
+      payload: { loading: true, type: ControlTypes.OUTPUT }
+    });
     debouncedDispatch(evt.target.value);
   };
 
