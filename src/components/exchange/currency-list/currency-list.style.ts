@@ -24,6 +24,8 @@ export const StyledListItem = styled.li`
   position: absolute;
   top: 0;
 
+  width: 100%;
+
   cursor: pointer;
   display: flex;
   align-items: center;
